@@ -1,0 +1,9 @@
+Version 1.01: 23 Mar 1998
+
+  - Bug fix: Integration time calculations off by factor of 4. Problem
+    found in CGI script Integration Time Calculator on SCUBA web pages.
+    Same factor was missing in the inverse calculation.
+
+Version 1.00: 19 Mar 1998
+
+  - Initial version

@@ -1,0 +1,32 @@
+This is version (1.01) of the JCMT::SCUBA perl module
+-----------------------------------------------------
+
+INTRODUCTION
+
+The code in this module was originally written for the Integration
+Time Calculator (ITC) - a CGI script which is currently being used
+for estimating the ammount of integration time required to achieve
+a desired S/N ratio with SCUBA at the James Clerk Maxwell Telescope.
+(see http://www.jach.hawaii.edu/jcmt_sw/bin/itc.pl).
+
+The module contains perl functions relating to SCUBA, and for 
+performing the SCUBA specific integration time calculations. 
+
+
+INSTALLATION
+
+This is a fairly simple, self-contained module. All that should be
+required is the following:
+
+	% perl Makefile.PL
+	% make
+	% make test
+	% make install
+
+
+AUTHOR
+
+Edward Chapin (email: echapin@jach.hawaii.edu)
+with help from Tim Jenness (email: timj@jach.hawaii.edu)
+
+March 23, 1998

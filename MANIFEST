@@ -1,0 +1,11 @@
+MANIFEST
+README
+ChangeLog
+Makefile.PL
+SCUBA.pm
+t/int2time.t
+t/int_time.t
+t/noise_level.t
+t/overhead.t
+t/scunefd.t
+t/time2int.t
