@@ -131,9 +131,10 @@ sub scunefd ($$) {
 
   # Store these as parameters of a simple power law  NEFD = a x^b
 
+  # Recalculated from Archibald et al. (2002)
   my %POWERLAW = (
-		  850 => [ 62.13036,  -1.19450 ], # wideband
-		  450 => [ 265.22623, -0.88198 ], # wideband
+		  850 => [ 58.88437,  -1.37 ], # wideband
+		  450 => [ 177.8279,  -1.02 ], # wideband
 		 );
 
   # The coefficients stuff needs to be hacked to make it a bit more
