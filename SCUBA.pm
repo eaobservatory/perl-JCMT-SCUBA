@@ -28,7 +28,7 @@ a given integration time.
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
 
-$VERSION = "1.01";
+$VERSION = "1.10";
 
 require Exporter;
 
@@ -173,7 +173,9 @@ sub scunefd ($$) {
   my ($i,$val,$thisarray);
   my $status = 0;
 
-  if ($_[0] == 1350 || $_[0] == 2000) {
+  # Handle constant NEFD cases
+
+  if (defined $nefd_table{$_[0]}) {
     return $nefd_table{$_[0]},0;
   }
 
@@ -286,6 +288,8 @@ know how to properly estimate the overhead, and also it is difficult to attach
 meaning to 'integrations' in this mode. It should be noted however that a 
 rough estimate for overhead in scan mapping is 50% of the integration time.
 
+Similarly, polarimetry is not supported. A rough guess is 50% overhead.
+
 =back
 
 =head2 Return Values
@@ -371,8 +375,15 @@ sub overhead ($$) {
 If you want to see what kind of noise level you can achieve with a certain
 integration time, do the following:
 
+  ($noise,$status) = noise_level($int,$filter,$mode,$nefd);
+
+    or
+
   ($noise,$status) = 
     noise_level($int,$filter,$mode,$nefd,$length,$width);
+
+The first case is for jiggle mapping, photometry and polarimetry. The second 
+is for scan mapping, where map dimensions must be specified. 
 
 =head2 Parameters
 
@@ -395,9 +406,9 @@ The third parameter is the observation mode, which may be one of the following:
   'jig16' = 16 point jiggle map
   'jig64' = 64 point jiggle map
   'scan'  = scan mapping 
+  'pol'   = polarimetry
 
-Scan mapping requires additional parameters: the dimensions of the map (see 
-5th and 6th parameters).
+Scan mapping requires additional parameters. See 5th and 6th parameters.
 
 =item 4.
 
@@ -406,9 +417,8 @@ and filter wavelength. (see the function JCMT::SCUBA::scunefd).
 
 =item 5. & 6.
 
-The last two parameters are the length and width of the scan map (if that is 
-the selected mode) in arcseconds. Length in this case means in the direction
-of the scan.
+If scan mapping, the last two parameters are the length and width of the map in
+in arcseconds. Length in this case means in the direction of the scan.
 
 =back
 
@@ -453,16 +463,13 @@ sub noise_level {
     }
   }
 
-  # Otherwise we only need 3 parameters
+  # Otherwise we only need 4 parameters
 
-  else {
-
-    unless ($#_ == 3) {
-      return (0,-2);
-    }
+  elsif ($#_ != 3) {
+    return (0,-2);
   }
 
-  # Make sure we have positive number of integrations
+  # Make sure we have positive integration time
 
   unless ($int > 0) {
     return (0,-1);
@@ -511,7 +518,14 @@ sub noise_level {
 	last CASE;
       }
     }
+
+    # --- 4th Case --- Polarimetry 
 	
+    if ($mode eq 'POL') {
+      $noise *= sqrt(18);
+      last CASE;
+    }
+
     # --- if no match bad exit status ---
 	
     return (0,-1);
@@ -528,8 +542,15 @@ sub noise_level {
 
 If you want to see how long it takes to achieve a certain noise level:
 
+  ($time,$status) = int_time($noise,$filter,$mode,$nefd);
+
+    or
+
   ($time,$status) = 
     int_time($noise,$filter,$mode,$nefd,$length,$width);
+
+The first case is for jiggle mapping, photometry and polarimetry. The second 
+is for scan mapping, where map dimensions must be specified. 
 
 =head2 Parameters
 
@@ -552,9 +573,9 @@ The third parameter is the observation mode, which may be one of the following:
   'jig16' = 16 point jiggle map
   'jig64' = 64 point jiggle map
   'scan'  = scan mapping 
+  'pol'   = polarimetry
 
-Scan mapping requires additional parameters: the dimensions of the map (see 
-5th and 6th parameters).
+Scan mapping requires additional parameters. See 5th and 6th parameters.
 
 =item 4.
 
@@ -563,9 +584,8 @@ and filter wavelength. (see the function JCMT::SCUBA::scunefd).
 
 =item 5. & 6.
 
-The last two parameters are the length and width of the scan map (if that is 
-the selected mode) in arcseconds. Length in this case means in the direction 
-of the scan.
+If scan mapping, the last two parameters are the length and width of the map in
+in arcseconds. Length in this case means in the direction of the scan.
 
 =back
 
@@ -613,10 +633,8 @@ sub int_time {
 
   # Otherwise we only need 4 parameters
 
-  else {
-    unless ($#_ == 3) {
-      return (0,-2);
-    }
+  elsif ($#_ != 3) {
+    return (0,-2);
   }
 
   # Make sure we have positive noise level
@@ -646,12 +664,12 @@ sub int_time {
     }
 	  
     # --- 2nd Case ---  Jiggle Mapping (factor of 16)
-	  
+
     if ($mode eq 'JIG16' || $mode eq 'JIG64') {
       $int *= 16;
       last CASE;
     }
-      
+
     # --- 3rd Case --- Scan Map (depends on map size & array)
     
     if ($mode eq 'SCAN') {
@@ -670,6 +688,13 @@ sub int_time {
       }
     }
     
+    # --- 4th Case --- Polarimetry 
+
+    if ($mode eq 'POL') {
+      $int *= 18;
+      last CASE;
+    }
+
     # Bad exit status if no matches
     
     return (0,-1);
@@ -702,7 +727,8 @@ int2time, it is the number of integrations.
 
 The second parameter is the mode, which is one of 'phot' for photometry, 
 'jig16' for 16 point jiggle map and 'jig64' for 64 point jiggle map. 'scan' 
-is not valid because integrations do not have any meaning in scan mapping.
+and 'pol' are not valid because integrations do not have any meaning in scan 
+mapping or polarimetry.
 
 =back
 
@@ -759,12 +785,17 @@ sub int2time ($$) {
 =head1 NOTES
 
 Although limited types of mapping may be performed with the photometry
-pixels at 1350 and 2000 microns, this module will only supports the
-'phot' mode at these wavelengths at present.
+pixels at 1350 and 2000 microns, this module will only support the
+'phot' and 'pol' modes at these wavelengths at present.
 
 It is likely that the transmission of the atmosphere is not known at any
 given time. Usually CSO Tau is known however, so to derive the transmission
 see JCMT::Tau::get_tau and JCMT::Tau::transmission.
+
+Whenever 'noise' is referred to, it is the RMS noise level, which is normally
+the (source-flux)/(sigma). In the case of polarimetry, is the polarised RMS 
+noise level which includes the polarisation factor: 
+(polarisation)(source-flux)/(sigma).
 
 =head1 AUTHOR
 

@@ -1,4 +1,4 @@
-This is version (1.01) of the JCMT::SCUBA perl module
+This is version (1.10) of the JCMT::SCUBA perl module
 -----------------------------------------------------
 
 INTRODUCTION
@@ -29,4 +29,4 @@ AUTHOR
 Edward Chapin (email: echapin@jach.hawaii.edu)
 with help from Tim Jenness (email: timj@jach.hawaii.edu)
 
-March 23, 1998
+March 30, 1998

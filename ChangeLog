@@ -1,3 +1,7 @@
+1998-03-30  Ed Chapin  <echapin@ulu>
+
+	* SCUBA.pm: v1.10. Semi-major version includes polarimetry.
+
 Version 1.01: 23 Mar 1998
 
   - Bug fix: Integration time calculations off by factor of 4. Problem
