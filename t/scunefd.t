@@ -6,9 +6,12 @@ use JCMT::SCUBA;
 # ================================================================
 #   Test JCMT::SCUBA::scunefd 
 #  
+#    Important note -- if the fitted NEFD curve values are updated
+#    some of the tests will fail!
+#
 # ================================================================
 
-$n=3; # number of tests
+$n=8; # number of tests
 print "1..$n\n";
 
 # === 1st Test: SCUNEFD boundary ===
@@ -27,9 +30,31 @@ print "1..$n\n";
 
 
 
-# === 3rd Test: SCUNEFD ===
+# === 3rd Test: SCUNEFD at 450 ===
 
-($this,$stat) = scunefd(450,.5);
-$this = sprintf("%.0lf",$this);
+&testnefd(450, 0.5, 489);
+&testnefd(450, 0.25, 901);
 
-($stat==0) && ($this== 431) && (print "ok\n") || (print "not ok\n");
+# === 4rd Test: SCUNEFD at 750 ===
+
+&testnefd(750, 0.3, 496);
+
+# === 5rd Test: SCUNEFD at 350 ===
+
+&testnefd(350, 0.25, 1520);
+
+# === 6rd Test: SCUNEFD at 850 ===
+
+&testnefd(850, 0.85, 75);
+&testnefd(850, 0.3, 262);
+
+
+sub testnefd {
+  my ($wave, $trans, $result)= @_;
+
+  my ($this,$stat) = scunefd($wave, $trans);
+  $this = sprintf("%.0lf",$this);
+  print "Result at $wave with sky trans of $trans is $this mJy\n";
+
+  ($stat==0) && ($this== $result) && (print "ok\n") || (print "not ok\n");
+}

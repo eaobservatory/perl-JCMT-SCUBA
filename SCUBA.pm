@@ -28,7 +28,7 @@ a given integration time.
 use strict;
 use vars qw($VERSION @ISA @EXPORT);
 
-$VERSION = "1.10";
+$VERSION = "1.11";
 
 require Exporter;
 
@@ -115,7 +115,29 @@ my %nefd_table = (
 		 );
 
 sub scunefd ($$) {
- 
+
+  # Some of the fits use a 10th order polynomial and some use a simple
+  # power law
+
+  # Lists whether we have a power law version of the fit
+  my %USEPOWER = (
+		  850  => 1,
+		  450  => 1,
+		  350  => 0,
+		  750  => 0,
+		  2000 => 0,
+		  1350 => 0,
+		 );
+
+  # Store these as parameters of a simple power law  NEFD = a x^b
+
+  my %POWERLAW = (
+		  850 => [ 62.13036,  -1.19450 ], # wideband
+		  450 => [ 265.22623, -0.88198 ], # wideband
+		 );
+
+  # The coefficients stuff needs to be hacked to make it a bit more
+  # obvious -- should probably convert them all to power laws
   # Store the coefficients of the 10th order fits for the NEFD vs transmission
   # curves. Fit is good on the interval (0.042,0.641) for 450 microns,
   # (0.038,0.937) for 850 microns, (0.038,0.437) for 350 microns, (0.038,0.875)
@@ -194,6 +216,10 @@ sub scunefd ($$) {
       if ($_[1] < .25) { $thisarray = \@COEFF450_1; }
       else { $thisarray = \@COEFF450_2; }
 
+      if ($USEPOWER{$_[0]} && exists $POWERLAW{$_[0]}) {
+	$thisarray = $POWERLAW{$_[0]};
+      }
+
       # See if transmission on interval of fit
 
       if ( $_[1]<.042 || $_[1]>.641 ) {
@@ -207,6 +233,10 @@ sub scunefd ($$) {
       
       if ($_[1] < .4) {	$thisarray = \@COEFF850_1; }
       else { $thisarray = \@COEFF850_2; }
+
+      if ($USEPOWER{$_[0]} && exists $POWERLAW{$_[0]}) {
+	$thisarray = $POWERLAW{$_[0]};
+      }
 
       # See if transmission on interval of fit
 
@@ -222,6 +252,10 @@ sub scunefd ($$) {
       if ($_[1] < .2) {	$thisarray = \@COEFF350_1; }
       else { $thisarray = \@COEFF350_2; }
 
+      if ($USEPOWER{$_[0]} && exists $POWERLAW{$_[0]}) {
+	$thisarray = $POWERLAW{$_[0]};
+      }
+
       # See if transmission on interval of fit
 
       if ( $_[1]<.038 || $_[1]>.437 ) {
@@ -236,6 +270,10 @@ sub scunefd ($$) {
       if ($_[1] < .4) {	$thisarray = \@COEFF750_1; }
       else { $thisarray = \@COEFF750_2; }
 
+      if ($USEPOWER{$_[0]} && exists $POWERLAW{$_[0]}) {
+	$thisarray = $POWERLAW{$_[0]};
+      }
+
       # See if transmission on interval of fit
 
       if ( $_[1]<.038 || $_[1]>.875 ) {
@@ -248,10 +286,15 @@ sub scunefd ($$) {
     return (0,-1);
   }
 
-  # now evaluate the power series
+  # now evaluate the power series or the powerlaw
 
-  for ($i=0; $i<=10; $i++) {
-    $val += $$thisarray[$i]*$_[1]**$i;
+  if ($USEPOWER{$_[0]}) {
+    $val = $thisarray->[0] * ($_[1] ** $thisarray->[1]);
+  } else {
+    $val = 0;
+    for ($i=0; $i<=10; $i++) {
+      $val += $$thisarray[$i]*$_[1]**$i;
+    }
   }
 
   return ($val,$status);

@@ -1,3 +1,11 @@
+2000-03-09  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* t/scunefd.t: Improve the tests and modify to take into account
+	the new NEFD's expected with the new fit.
+
+	* SCUBA.pm (scunefd): Add wideband filter (850/450) data as a
+	power law replacing the old narrow band polynomial fit.
+
 1998-03-30  Ed Chapin  <echapin@ulu>
 
 	* SCUBA.pm: v1.10. Semi-major version includes polarimetry.
