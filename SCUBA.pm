@@ -734,7 +734,7 @@ sub int_time {
     # --- 4th Case --- Polarimetry 
 
     if ($mode eq 'POL') {
-      $int *= 18;
+      $int *= 4.4;
       last CASE;
     }
 
