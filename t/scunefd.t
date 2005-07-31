@@ -1,7 +1,9 @@
 use strict;
-no strict "vars";
+use Test::More tests => 15;
 
-use JCMT::SCUBA;
+BEGIN {
+  use_ok( "JCMT::SCUBA" );
+}
 
 # ================================================================
 #   Test JCMT::SCUBA::scunefd 
@@ -11,24 +13,17 @@ use JCMT::SCUBA;
 #
 # ================================================================
 
-$n=8; # number of tests
-print "1..$n\n";
-
 # === 1st Test: SCUNEFD boundary ===
 
-($this,$stat) = scunefd(350,.01);
+my ($this,$stat) = scunefd(350,.01);
 
-($stat==-2) && (print "ok\n") || (print "not ok\n");
-
-
+is( $stat, -2, "Check status for 350");
 
 # === 2nd Test: SCUNEFD bad parameters ===
 
 ($this,$stat) = scunefd(-1,.2);
 
-($stat==-1) && (print "ok\n") || (print "not ok\n");
-
-
+is( $stat, -1, "Check deliberate bad status");
 
 # === 3rd Test: SCUNEFD at 450 ===
 
@@ -54,7 +49,7 @@ sub testnefd {
 
   my ($this,$stat) = scunefd($wave, $trans);
   $this = sprintf("%.0lf",$this);
-  print "Result at $wave with sky trans of $trans is $this mJy\n";
-
-  ($stat==0) && ($this== $result) && (print "ok\n") || (print "not ok\n");
+  print "# Result at $wave with sky trans of $trans is $this mJy\n";
+  is( $stat, 0, "Check good status for $wave vs $trans" );
+  is( $result, $this, "Check result for $wave at $trans");
 }
