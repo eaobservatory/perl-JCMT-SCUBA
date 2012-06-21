@@ -27,8 +27,8 @@ is( $stat, -1, "Check deliberate bad status");
 
 # === 3rd Test: SCUNEFD at 450 ===
 
-&testnefd(450, 0.5, 489);
-&testnefd(450, 0.25, 901);
+&testnefd(450, 0.5, 361);
+&testnefd(450, 0.25, 731);
 
 # === 4rd Test: SCUNEFD at 750 ===
 
@@ -40,8 +40,8 @@ is( $stat, -1, "Check deliberate bad status");
 
 # === 6rd Test: SCUNEFD at 850 ===
 
-&testnefd(850, 0.85, 75);
-&testnefd(850, 0.3, 262);
+&testnefd(850, 0.85, 74);
+&testnefd(850, 0.3, 306);
 
 
 sub testnefd {
