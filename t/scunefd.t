@@ -51,5 +51,5 @@ sub testnefd {
   $this = sprintf("%.0lf",$this);
   print "# Result at $wave with sky trans of $trans is $this mJy\n";
   is( $stat, 0, "Check good status for $wave vs $trans" );
-  is( $result, $this, "Check result for $wave at $trans");
+  is( $this, $result, "Check result for $wave at $trans");
 }
